@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+  <style>
+    body {
+      margin: 0;
+      background: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .container {
+      width: 800px;
+      height: 480px;
+      background: white;
+      padding: 25px;
+      box-sizing: border-box;
+    }
+
+    /* Header */
+
+    .header {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .date {
+      text-align: center;
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    /* Main weather */
+
+    .main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .weather-icon {
+      width: 100px;
+      height: 100px;
+    }
+
+    .temp {
+      font-size: 96px;
+      font-weight: 700;
+    }
+
+    .feels {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 8px;
+      color: #555;
+    }
+
+    /* Metrics */
+
+    .metrics {
+      margin-top: 35px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      text-align: center;
+    }
+
+    .metric img {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 6px;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: #777;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="header" id="location"></div>
+    <div class="date" id="date"></div>
+
+    <div class="main">
+      <img id="weatherIcon" class="weather-icon">
+      <div class="temp" id="temp"></div>
+    </div>
+
+    <div class="feels" id="feels"></div>
+
+    <div class="metrics">
+
+      <div class="metric">
+        <img src="icons/wind.png">
+        <div class="metric-label">Wind</div>
+        <div class="metric-value" id="wind"></div>
+      </div>
+
+      <div class="metric">
+        <img src="icons/humidity.png">
+        <div class="metric-label">Humidity</div>
+        <div class="metric-value" id="humidity"></div>
+      </div>
+
+      <div class="metric">
+        <img src="icons/pressure.png">
+        <div class="metric-label">Pressure</div>
+        <div class="metric-value" id="pressure"></div>
+      </div>
+
+      <div class="metric">
+        <img src="icons/sunrise.png">
+        <div class="metric-label">Sunrise</div>
+        <div class="metric-value" id="sunrise"></div>
+      </div>
+
+      <div class="metric">
+        <img src="icons/sunset.png">
+        <div class="metric-label">Sunset</div>
+        <div class="metric-value" id="sunset"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    /* URL PARAM HELPER */
+
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name)
+    }
+
+    const raw = getParam("data")
+
+    let weather
+
+    try {
+      if (raw) {
+        const parsed = JSON.parse(decodeURIComponent(raw))
+        weather = parsed.current_weather
+      }
+    } catch (e) {
+      console.error("Invalid weather JSON", e)
+    }
+
+    /* fallback demo */
+
+    if (!weather) {
+      weather = {
+        location: "Bengaluru",
+        country: "IN",
+        timestamp: 1773402385,
+        temp: 31,
+        feels_like: 29,
+        condition: "Clear",
+        condition_code: 800,
+        wind_speed: 5.36,
+        humidity: 17,
+        pressure: 1007,
+        sunrise: "06:28",
+        sunset: "06:29"
+      }
+    }
+
+    /* UI RENDER */
+
+    document.getElementById("location").innerText =
+      weather.country
+        ? weather.location + ", " + weather.country
+        : weather.location
+
+    document.getElementById("date").innerText =
+      new Date(weather.timestamp * 1000).toDateString()
+
+    document.getElementById("temp").innerText =
+      weather.temp + "°"
+
+    document.getElementById("feels").innerText =
+      "Feels like " + weather.feels_like + "°"
+
+    document.getElementById("wind").innerText =
+      weather.wind_speed + " m/s"
+
+    document.getElementById("humidity").innerText =
+      weather.humidity + "%"
+
+    document.getElementById("pressure").innerText =
+      weather.pressure + " hPa"
+
+    document.getElementById("sunrise").innerText =
+      weather.sunrise
+
+    document.getElementById("sunset").innerText =
+      weather.sunset
+
+    /* ICON MAPPING */
+
+    function mapIcon(code) {
+
+      if (code === 800) return "01d.png"
+
+      if (code >= 801 && code <= 802) return "02d.png"
+
+      if (code === 803) return "03d.png"
+
+      if (code === 804) return "04d.png"
+
+      if (code >= 500 && code <= 531) return "10d.png"
+
+      if (code >= 200 && code <= 232) return "11d.png"
+
+      if (code >= 600 && code <= 622) return "13d.png"
+
+      if (code >= 700 && code <= 781) return "50d.png"
+
+      return "01d.png"
+
+    }
+
+    document.getElementById("weatherIcon").src =
+      "icons/" + mapIcon(weather.condition_code)
+
+  </script>
+
+</body>
+
+</html>
