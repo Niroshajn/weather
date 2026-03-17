@@ -21,6 +21,12 @@
       background: white;
       padding: 25px;
       box-sizing: border-box;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      align-items: center;
     }
 
     /* Header */
@@ -32,13 +38,13 @@
     }
 
     .date {
+      padding: 10px;
       text-align: center;
       font-size: 16px;
       color: #666;
       margin-bottom: 20px;
     }
 
-    /* Main weather */
 
     .main {
       display: flex;
@@ -71,12 +77,14 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       text-align: center;
+      gap: 30px;
     }
 
     .metric img {
       width: 32px;
       height: 32px;
       margin-bottom: 6px;
+
     }
 
     .metric-label {
@@ -149,20 +157,29 @@
       return new URLSearchParams(window.location.search).get(name)
     }
 
-    const raw = getParam("data")
+  const raw = getParam("data")
 
-    let weather
+let weather
 
-    try {
-      if (raw) {
-        const parsed = JSON.parse(decodeURIComponent(raw))
-        weather = parsed.current_weather
-      }
-    } catch (e) {
-      console.error("Invalid weather JSON", e)
+try {
+  if (raw) {
+    let cleanRaw = raw
+
+    // 🔥 remove accidental duplication
+    if (cleanRaw.startsWith("?data=")) {
+      cleanRaw = cleanRaw.replace("?data=", "")
     }
 
-    /* fallback demo */
+    const parsed = JSON.parse(decodeURIComponent(cleanRaw))
+
+    weather =
+      parsed.current_weather ||
+      parsed
+  }
+} catch (e) {
+  console.error("Invalid weather JSON", e)
+}
+   
 
     if (!weather) {
       weather = {
